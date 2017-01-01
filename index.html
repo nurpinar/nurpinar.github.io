@@ -1,0 +1,128 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Pet game</title>
+    <meta name="description" content="Web game for dogs and objects">
+    <meta name="author" content="nurpinar">
+    <style>
+        #object{
+            position: fixed;
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            border-radius: 50%;
+            transition: transform 300ms linear;
+        }
+
+        .dot {
+            background-color: red;
+            position: fixed;
+            width: 2px;
+            height: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        var positions = [];
+        var playing = false;
+        var oldX = 0, oldY = 0;
+        var intervalId;
+        var object;
+        var dotId = 0;
+        var intervalCount = 0;
+
+        function onMouseMove(e) {
+            var x = e.pageX;
+            var y = e.pageY;
+            if (Math.abs(x - oldX) > 20 || Math.abs(y - oldY) > 20) {
+                oldX = x;
+                oldY = y;
+                recordPosition(x, y);
+            }
+            maybeStartMoving();
+        }
+
+        function recordPosition(x, y) {
+            positions.push([x, y, getDot(x, y)]);
+        }
+
+        function getDot(x, y) {
+            var dot = document.createElement("div");
+            dot.className = "dot";
+            dotId++;
+            dot.style.left = x + 'px';
+            dot.style.top = y + 'px';
+            document.body.appendChild(dot);
+            //console.log(dot);
+            return dot;
+        }
+
+        //var positions = [[50, 30], [300, 40], [100, 150]];
+
+        function maybeStartMoving() {
+            if (!intervalId) {
+                intervalId = setInterval(moveObject, 200);
+                console.log('new interval', ++intervalCount);
+            }
+        }
+
+        function maybeStopMoving() {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+                console.log('clear interval', --intervalCount);
+            }
+        }
+
+        function moveObject() {
+            var pos = positions.shift();
+            if (pos) {
+                object.style.transform = "translate(" + pos[0] + "px, " + pos[1] + "px)";
+                var dot = pos[2];
+                dot.parentNode.removeChild(dot);
+                //console.log(pos);
+            } else {
+                maybeStopMoving();
+            }
+        }
+
+        function endGame() {
+            document.removeEventListener('mousemove', recordPositions);
+            clearInterval(intervalId);
+
+            object.parentNode.removeChild(object);
+            var dots = document.getElementsByClassName('dot');
+            var dotsCopy = Array.from(dots);
+
+            dotsCopy.forEach(function (dot) {
+                dot.parentNode.removeChild(dot);
+            });
+
+            positions = [];
+
+            setTimeout(startGame, 1000);
+        }
+
+        function startGame() {
+            object = document.createElement("div");
+            object.id = "object";
+            object.style.top = "0px";
+            object.style.left = "0px";
+            document.body.appendChild(object);
+            document.addEventListener('mousemove', onMouseMove);
+            object.addEventListener('click', endGame);
+        }
+
+        window.addEventListener('load', function () {
+            startGame();
+        });
+    </script>
+</body>
+
+</html>
