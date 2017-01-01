@@ -6,16 +6,25 @@
     <meta charset="utf-8">
 
     <title>Pet game</title>
-    <meta name="description" content="Web game for dogs and objects">
+    <meta name="description" content="Web game for pets">
     <meta name="author" content="nurpinar">
     <style>
-        #object{
+        #object {
             position: fixed;
+            transition: transform 300ms linear;
+        }
+        .ball{
+            position: absolute;
             width: 50px;
             height: 50px;
+            left: -50%;
+            top: -50%;
             background-color: red;
             border-radius: 50%;
-            transition: transform 300ms linear;
+        }
+        .hidden.ball {
+            position: static;
+            visibility: hidden;
         }
 
         .dot {
@@ -28,10 +37,17 @@
 </head>
 
 <body>
+    <template id="objectTemplate">
+        <div id="object">
+            <div class="ball"></div>
+            <div class="hidden ball"></div>
+        </div>
+    </template>
     <script>
         var positions = [];
         var playing = false;
         var oldX = 0, oldY = 0;
+        var offsetX, offsetY;
         var intervalId;
         var object;
         var dotId = 0;
@@ -45,11 +61,11 @@
                 oldY = y;
                 recordPosition(x, y);
             }
-            maybeStartMoving();
         }
 
         function recordPosition(x, y) {
             positions.push([x, y, getDot(x, y)]);
+            maybeStartMoving();
         }
 
         function getDot(x, y) {
@@ -83,7 +99,7 @@
         function moveObject() {
             var pos = positions.shift();
             if (pos) {
-                object.style.transform = "translate(" + pos[0] + "px, " + pos[1] + "px)";
+                object.style.transform = "translate(" + (pos[0]) + "px, " + (pos[1]) + "px)";
                 var dot = pos[2];
                 dot.parentNode.removeChild(dot);
                 //console.log(pos);
@@ -93,8 +109,8 @@
         }
 
         function endGame() {
-            document.removeEventListener('mousemove', recordPositions);
-            clearInterval(intervalId);
+            document.removeEventListener('mousemove', onMouseMove);
+            maybeStopMoving();
 
             object.parentNode.removeChild(object);
             var dots = document.getElementsByClassName('dot');
@@ -109,11 +125,19 @@
             setTimeout(startGame, 1000);
         }
 
-        function startGame() {
-            object = document.createElement("div");
+        function createObject() {
+            var template = document.getElementById("objectTemplate");
+            return template.content.querySelector('#object').cloneNode(true);
+            /*
+            var object = document.createElement("div");
             object.id = "object";
             object.style.top = "0px";
             object.style.left = "0px";
+            return object;*/
+        }
+
+        function startGame() {
+            object = createObject();
             document.body.appendChild(object);
             document.addEventListener('mousemove', onMouseMove);
             object.addEventListener('click', endGame);
