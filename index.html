@@ -47,10 +47,8 @@
         var positions = [];
         var playing = false;
         var oldX = 0, oldY = 0;
-        var offsetX, offsetY;
         var intervalId;
         var object;
-        var dotId = 0;
         var intervalCount = 0;
 
         function onTouchMove(e) {
@@ -76,11 +74,9 @@
         function getDot(x, y) {
             var dot = document.createElement("div");
             dot.className = "dot";
-            dotId++;
             dot.style.left = x + 'px';
             dot.style.top = y + 'px';
             document.body.appendChild(dot);
-            //console.log(dot);
             return dot;
         }
 
@@ -133,12 +129,6 @@
         function createObject() {
             var template = document.getElementById("objectTemplate");
             return template.content.querySelector('#object').cloneNode(true);
-            /*
-            var object = document.createElement("div");
-            object.id = "object";
-            object.style.top = "0px";
-            object.style.left = "0px";
-            return object;*/
         }
 
         function startGame() {
