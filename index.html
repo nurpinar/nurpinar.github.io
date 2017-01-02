@@ -53,14 +53,19 @@
         var dotId = 0;
         var intervalCount = 0;
 
-        function onMouseMove(e) {
-            var x = e.pageX;
-            var y = e.pageY;
+        function onTouchMove(e) {
+            var x = e.touches[0].pageX;
+            var y = e.touches[0].pageY;
             if (Math.abs(x - oldX) > 20 || Math.abs(y - oldY) > 20) {
                 oldX = x;
                 oldY = y;
                 recordPosition(x, y);
             }
+        }
+
+        function onMouseMove(e) {
+            e.touches = [{ pageX: e.pageX, pageY: e.pageY }];
+            onTouchMove(e);
         }
 
         function recordPosition(x, y) {
@@ -140,7 +145,9 @@
             object = createObject();
             document.body.appendChild(object);
             document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('touchmove', onTouchMove);
             object.addEventListener('click', endGame);
+            object.addEventListener('touchstart', endGame);
         }
 
         window.addEventListener('load', function () {
