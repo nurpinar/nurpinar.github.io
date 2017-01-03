@@ -72,7 +72,9 @@
             <div class="hidden ball"></div>
         </div>
     </template>
-
+    <!--    <audio>
+        <source src="./XC228142 - Red-billed Parrot - Pionus sordidus.mp3" type="audio/mpeg"> Your browser does not support the audio element.
+    </audio>-->
     <script>
         var positions = [];
         var playing = false;
@@ -117,7 +119,6 @@
         function maybeStartMoving() {
             if (!intervalId) {
                 intervalId = setInterval(moveObject, 200);
-                console.log('new interval', ++intervalCount);
             }
         }
 
@@ -125,16 +126,15 @@
             if (intervalId) {
                 clearInterval(intervalId);
                 intervalId = null;
-                console.log('clear interval', --intervalCount);
             }
         }
 
         function moveObject() {
             var pos = positions.shift();
-            if (pos) {
-                object.style.transform = "translate(" + (pos[0]) + "px, " + (pos[1]) + "px)";
+            if (pos && positions[0]) {
+                var heading = Math.atan2(positions[0][0] - pos[0], positions[0][1] - pos[1]) * -180 / Math.PI;
+                object.style.transform = "translate(" + (pos[0]) + "px, " + (pos[1]) + "px) rotate(" + (heading + 180) + "deg)";
                 var radians = (Math.sin(tailRotateDeg) * 20);
-                console.log(radians);
                 tail.style.transform = "rotate(" + radians + "deg)";
                 tailRotateDeg += 2;
                 var dot = pos[2];
