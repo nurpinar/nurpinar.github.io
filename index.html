@@ -13,6 +13,7 @@
         #object {
             position: fixed;
             transition: transform 300ms linear;
+            transform-origin: 0px 0px;            
         }
         .ball{
             position: absolute;
@@ -39,14 +40,23 @@
         }
         .tail {
             position: absolute;
-            top: 50px;
+            top: 47px;
             background-color: red;
             left: 20px;
             width: 10px;
-            height: 30px;
+            height: 36px;
             border-radius: 30%;
             transform-origin: 5px 0px;
-            transition: transform 200ms linear;
+            /*transition: transform 600ms linear;*/
+            animation-duration: 400ms;
+            animation-name: spin;
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
+            animation-timing-function: ease-in-out;
+        }
+        @keyframes spin {
+            from {transform:rotate(-40deg);}
+            to {transform:rotate(40deg);}
         }
         .hidden.ball {
             position: static;
@@ -83,8 +93,6 @@
         var intervalId;
         var object;
         var tail;
-        var intervalCount = 0;
-        var tailRotateDeg = 0;
 
         function onTouchMove(e) {
             var x = e.touches[0].pageX;
@@ -115,8 +123,6 @@
             return dot;
         }
 
-        //var positions = [[50, 30], [300, 40], [100, 150]];
-
         function maybeStartMoving() {
             if (!intervalId) {
                 intervalId = setInterval(moveObject, 200);
@@ -135,12 +141,8 @@
             if (pos && positions[0]) {
                 var heading = Math.atan2(positions[0][0] - pos[0], positions[0][1] - pos[1]) * -180 / Math.PI;
                 object.style.transform = "translate(" + (pos[0]) + "px, " + (pos[1]) + "px) rotate(" + (heading + 180) + "deg)";
-                var radians = (Math.sin(tailRotateDeg) * 20);
-                tail.style.transform = "rotate(" + radians + "deg)";
-                tailRotateDeg += 2;
                 var dot = pos[2];
                 dot.parentNode.removeChild(dot);
-                //console.log(pos);
             } else {
                 maybeStopMoving();
             }
