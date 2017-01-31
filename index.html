@@ -87,9 +87,11 @@
         <source src="./XC228142 - Red-billed Parrot - Pionus sordidus.mp3" type="audio/mpeg"> Your browser does not support the audio element.
     </audio>-->
     <script>
-        var positions = [];
+        var dotPositions = [];
+        var timeoutsBetweenDots = [];
         var playing = false;
         var oldX = 0, oldY = 0;
+        var oldTime = 0;
         var intervalId;
         var object;
         var tail;
@@ -100,7 +102,8 @@
             if (Math.abs(x - oldX) > 20 || Math.abs(y - oldY) > 20) {
                 oldX = x;
                 oldY = y;
-                recordPosition(x, y);
+                recordDotPosition(x, y);
+                recordTimeoutsBetweenDots();
             }
         }
 
@@ -109,9 +112,16 @@
             onTouchMove(e);
         }
 
-        function recordPosition(x, y) {
-            positions.push([x, y, getDot(x, y)]);
+        function recordDotPosition(x, y) {
+            dotPositions.push([x, y, getDot(x, y)]);
             maybeStartMoving();
+        }
+
+        function recordTimeoutsBetweenDots() {
+            if (oldTime) {
+                timeoutsBetweenDots.push((Date.now() - oldTime) * 10);
+            }
+            oldTime = Date.now();
         }
 
         function getDot(x, y) {
@@ -124,8 +134,13 @@
         }
 
         function maybeStartMoving() {
-            if (!intervalId) {
-                intervalId = setInterval(moveObject, 200);
+            /* if (!intervalId) {
+                 intervalId = setInterval(moveObject, 200);
+             }*/
+            var delay = timeoutsBetweenDots.shift();
+            if (delay) {
+                setTimeout(moveObject, delay);
+                object.style.transitionDuration = delay;
             }
         }
 
@@ -137,9 +152,9 @@
         }
 
         function moveObject() {
-            var pos = positions.shift();
-            if (pos && positions[0]) {
-                var heading = Math.atan2(positions[0][0] - pos[0], positions[0][1] - pos[1]) * -180 / Math.PI;
+            var pos = dotPositions.shift();
+            if (pos && dotPositions[0]) {
+                var heading = Math.atan2(dotPositions[0][0] - pos[0], dotPositions[0][1] - pos[1]) * -180 / Math.PI;
                 object.style.transform = "translate(" + (pos[0]) + "px, " + (pos[1]) + "px) rotate(" + (heading + 180) + "deg)";
                 var dot = pos[2];
                 dot.parentNode.removeChild(dot);
@@ -160,7 +175,9 @@
                 dot.parentNode.removeChild(dot);
             });
 
-            positions = [];
+            dotPositions = [];
+            timeoutsBetweenDots = [];
+            old = 0;
 
             setTimeout(startGame, 1000);
         }
